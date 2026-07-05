@@ -135,6 +135,23 @@ def benchmark_pipeline(device):
     print(f" TOTAL LATENCY FOR {duration_s}s AUDIO: {total_latency:.3f}s")
     print(f" TOTAL SYSTEM RTF: {total_latency / duration_s:.3f}x")
     print("=" * 60)
+    
+    # 3. Whisper Tiny Baseline
+    print("\n--- Phase 3: Whisper Tiny Baseline (For Comparison) ---")
+    print("Loading Whisper Tiny...")
+    t0 = time.time()
+    whisper_model = openai_whisper.load_model("tiny", device=device)
+    print(f"Loaded Whisper Tiny in {time.time() - t0:.2f}s")
+    
+    t0 = time.time()
+    with torch.no_grad():
+        _ = whisper_model.transcribe(dummy_audio.squeeze(0).cpu().numpy() if device == "cuda" else dummy_audio.squeeze(0).numpy())
+    whisper_latency = time.time() - t0
+    whisper_rtf = whisper_latency / duration_s
+    
+    print(f"Whisper Tiny Latency: {whisper_latency:.3f}s")
+    print(f"Whisper Tiny RTF:     {whisper_rtf:.3f}x real-time")
+    print("=" * 60 + "\n")
 
 if __name__ == "__main__":
     device = get_hardware_stats()
