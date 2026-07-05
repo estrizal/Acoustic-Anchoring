@@ -1,0 +1,2 @@
+mode,checkpoint_label,checkpoint,frontend,prompt_chunk_words,prompt_chunk_min_words,n,wer,ci_low,ci_high,acoustic_model,ipa_vocab
+word_boundary,Ep 3,models/lora_word_boundary/checkpoint-12612,chunked,0,0,1,17.857142857142858,17.857142857142858,17.857142857142858,models/phonemic_char_ipa_FULL_best.pt,data/char_ipa_vocab.json
