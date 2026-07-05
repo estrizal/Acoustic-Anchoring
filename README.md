@@ -21,9 +21,15 @@ Under a strict 50 MB additive memory budget (e.g., smart glasses running an LLM)
 ## Installation
 
 ```bash
-git clone https://github.com/estrizal/GITHUB_UPLOAD.git
-cd GITHUB_UPLOAD
+git clone https://github.com/YOUR_USERNAME/acoustic-anchoring.git
+cd acoustic-anchoring
+
+# For Edge / CPU-only laptops (prevents downloading 3GB+ of NVIDIA CUDA binaries):
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
+
+# For machines with NVIDIA GPUs:
+# pip install -r requirements.txt
 ```
 
 ## Download Checkpoints
