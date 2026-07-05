@@ -23,7 +23,7 @@ from peft import PeftModel
 
 # Local imports
 import sys
-sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))
 from chunked_char_ipa_frontend import load_frontend, words_to_boundary_prompt
 
 CTC_WEIGHTS = "models/phonemic_char_ipa_FULL_best.pt"

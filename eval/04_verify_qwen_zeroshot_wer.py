@@ -22,7 +22,7 @@ import whisper as openai_whisper
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))
 
 # ── File paths ─────────────────────────────────────────────────────────────────
 CTC_WEIGHTS = "models/phonemic_ctc_best.pt"
