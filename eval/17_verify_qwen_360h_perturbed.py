@@ -38,7 +38,7 @@ VOCAB_PATH = "data/char_ipa_vocab.json"
 DATA_ROOT = "./data"
 LIBRI_ROOT = "./data/LibriSpeech/test-clean"
 QWEN_BASE = "Qwen/Qwen2.5-0.5B-Instruct"
-QWEN_ADAPTER = "models/lora_adapter_360_perturbed_unsloth/lora_adapter_360_perturbed_unsloth"
+QWEN_ADAPTER = "GITHUB_UPLOAD/models/lora_adapter_360_perturbed_unsloth/lora_adapter_360_perturbed_unsloth"
 
 SYSTEM_PROMPT = "You are an expert phonetic decoder. Convert the following IPA string back into standard English."
 
@@ -172,15 +172,28 @@ def evaluate_qwen_tuning(ipa_dataset, qwen_model, tokenizer, config_name, rep_pe
             hyp = norm(tokenizer.decode(out[j][in_len:], skip_special_tokens=True))
             hyps.append(hyp)
             
-    # Compute WER
+    # Compute WER and per-sentence error arrays
     errors, lengths = [], []
     for r, h in zip(refs, hyps):
         res = jiwer.process_words(norm(r), h)
         errors.append(res.substitutions + res.deletions + res.insertions)
         lengths.append(len(norm(r).split()))
-        
-    wer = np.sum(errors) / np.sum(lengths) * 100
-    return wer, hyps
+
+    errors_arr = np.array(errors, dtype=np.float64)
+    lengths_arr = np.array(lengths, dtype=np.float64)
+    wer = np.sum(errors_arr) / np.sum(lengths_arr) * 100
+
+    # 1,000-iteration sentence-level bootstrap resampling for 95% CI
+    rng = np.random.default_rng(seed=42)
+    n = len(errors_arr)
+    boot_wers = []
+    for _ in range(1000):
+        idx = rng.integers(0, n, size=n)
+        boot_wers.append(np.sum(errors_arr[idx]) / np.sum(lengths_arr[idx]) * 100)
+    ci_low  = float(np.percentile(boot_wers, 2.5))
+    ci_high = float(np.percentile(boot_wers, 97.5))
+
+    return wer, ci_low, ci_high, hyps
 
 def main():
     parser = argparse.ArgumentParser()
@@ -243,44 +256,43 @@ def main():
     qwen_model = PeftModel.from_pretrained(base_qwen, QWEN_ADAPTER)
     qwen_model.eval()
 
-    # 3. Dynamic Evaluation Runs:
     # 0. Baseline (No hacks)
-    wer_base, _ = evaluate_qwen_tuning(
+    wer_base, ci_base_lo, ci_base_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Baseline (No Hacks)",
         rep_penalty=None, use_min_len=False, min_len_ratio=0.0, batch_size=args.batch_size
     )
 
     # A. Repetition Penalty only (1.1)
-    wer_a, _ = evaluate_qwen_tuning(
+    wer_a, ci_a_lo, ci_a_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Method A (Rep Penalty = 1.10)",
         rep_penalty=1.10, use_min_len=False, min_len_ratio=0.0, batch_size=args.batch_size
     )
     
     # B. Min Length Constraint (0.4)
-    wer_b4, _ = evaluate_qwen_tuning(
+    wer_b4, ci_b4_lo, ci_b4_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Method B (Min Length = 0.4)",
         rep_penalty=None, use_min_len=True, min_len_ratio=0.4, batch_size=args.batch_size
     )
 
     # B. Min Length Constraint (0.7)
-    wer_b7, _ = evaluate_qwen_tuning(
+    wer_b7, ci_b7_lo, ci_b7_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Method B (Min Length = 0.7)",
         rep_penalty=None, use_min_len=True, min_len_ratio=0.7, batch_size=args.batch_size
     )
 
     # C. Combined (Rep Penalty 1.10 + Min Length 0.4)
-    wer_c4, _ = evaluate_qwen_tuning(
+    wer_c4, ci_c4_lo, ci_c4_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Method A + B (Rep 1.10, Min 0.4)",
         rep_penalty=1.10, use_min_len=True, min_len_ratio=0.4, batch_size=args.batch_size
     )
 
     # C. Combined (Rep Penalty 1.10 + Min Length 0.7)
-    wer_c7, _ = evaluate_qwen_tuning(
+    wer_c7, ci_c7_lo, ci_c7_hi, _ = evaluate_qwen_tuning(
         raw_dataset, qwen_model, tokenizer,
         config_name="Method A + B (Rep 1.10, Min 0.7)",
         rep_penalty=1.10, use_min_len=True, min_len_ratio=0.7, batch_size=args.batch_size
@@ -290,13 +302,15 @@ def main():
     print("INFERENCE DECIDERS EVALUATION SUMMARY (PERTURBED TRAINING MODEL)")
     print("-" * 80)
     print(f"Dataset                           : LibriSpeech test-clean (N={len(pairs)})")
-    print(f"Baseline (No Hacks) WER           : {wer_base:.2f}%")
-    print(f"Method A (Rep Penalty 1.10) WER   : {wer_a:.2f}%")
-    print(f"Method B (Min Length 0.4) WER     : {wer_b4:.2f}%")
-    print(f"Method B (Min Length 0.7) WER     : {wer_b7:.2f}%")
-    print(f"Combined (Rep 1.10 + Min 0.4) WER : {wer_c4:.2f}%")
-    print(f"Combined (Rep 1.10 + Min 0.7) WER : {wer_c7:.2f}%")
-    print("=" * 80)
+    print(f"Baseline (No Hacks) WER           : {wer_base:.2f}%  95% CI [{ci_base_lo:.2f}, {ci_base_hi:.2f}]")
+    print(f"Method A (Rep Penalty 1.10) WER   : {wer_a:.2f}%  95% CI [{ci_a_lo:.2f}, {ci_a_hi:.2f}]")
+    print(f"Method B (Min Length 0.4) WER     : {wer_b4:.2f}%  95% CI [{ci_b4_lo:.2f}, {ci_b4_hi:.2f}]")
+    print(f"Method B (Min Length 0.7) WER     : {wer_b7:.2f}%  95% CI [{ci_b7_lo:.2f}, {ci_b7_hi:.2f}]")
+    print(f"Combined (Rep 1.10 + Min 0.4) WER : {wer_c4:.2f}%  95% CI [{ci_c4_lo:.2f}, {ci_c4_hi:.2f}]")
+    print(f"Combined (Rep 1.10 + Min 0.7) WER : {wer_c7:.2f}%  95% CI [{ci_c7_lo:.2f}, {ci_c7_hi:.2f}]")
+    print("="  * 80)
+    print("NOTE: CIs use 1,000-iteration sentence-level bootstrap resampling (seed=42).")
+    print("NOTE: Same N=2,620 test-clean split; same jiwer WER computation as main eval.")
 
 if __name__ == "__main__":
     main()
