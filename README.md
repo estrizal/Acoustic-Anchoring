@@ -1,6 +1,6 @@
 # Acoustic Anchoring
 
-Official repository for **Acoustic Anchoring**, Submission at:-  **IEEE SLT 2026 (Demo Track)**.
+Official repository for **Acoustic Anchoring**, accepted at **IEEE SLT 2026 (Demo Track)**.
 
 ![Pipeline Overview](assets/pipeline_figure.png)
 
@@ -15,13 +15,14 @@ Under a strict 50 MB additive memory budget (e.g., smart glasses running an LLM)
 | Whisper Tiny | 5.60% | 75 MB |
 | Whisper Base | 4.20% | 145 MB |
 | Wav2Vec2-base | 3.70% | 360 MB |
-| **Acoustic Anchoring (SPP-boundary)** | **13.43%** | **39 MB** |
+| **Acoustic Anchoring (100h SPP-boundary)** | **13.43%** | **39 MB** |
+| **Acoustic Anchoring (360h Extended)** | **10.03%** | **39 MB** |
 | GPT-4o zero-shot oracle | 8.92% | N/A |
 
 ## Installation
 
 ```bash
-git clone https://github.com/estrizal/acoustic-anchoring.git
+git clone https://github.com/estrizal/Acoustic-Anchoring.git
 cd acoustic-anchoring
 
 # For Edge / CPU-only laptops (prevents downloading 3GB+ of NVIDIA CUDA binaries):
@@ -36,12 +37,13 @@ pip install -r requirements.txt
 
 To run the system offline, you must download the pre-trained Acoustic Bridge and the fine-tuned LLMs.
 
-1. Download the weights from [HuggingFace Hub](https://huggingface.co/YOUR_USERNAME/acoustic-anchoring) (Update link when uploaded).
+1. Download the weights from [HuggingFace Hub](https://huggingface.co/estrizal/acoustic-anchoring) (Update link when uploaded).
 2. Place the weights inside the `models/` directory:
    - `models/phonemic_char_ipa_FULL_best.pt` (39 MB) — The Acoustic Bridge
    - `models/lora_word_boundary/checkpoint-12612/` (33 MB) — SPP-boundary LoRA Adapter (13.43% WER)
    - `models/lora_yes_confidence_models/checkpoint-12612/` (33 MB) — SPP-confidence (13.49% WER)
    - `models/lora_placebo_confidence_models/checkpoint-12612/` (33 MB) — SPP-placebo (13.46% WER)
+   - `models/lora_adapter_360_perturbed_unsloth/` (33 MB) — 360h Extended Adapter (10.03% WER)
 
 ## Running Evaluations
 
@@ -60,11 +62,14 @@ python eval/09_verify_qwen_confidence_epochs_wer.py
 # 4. Evaluate SPP-placebo -> 13.46% WER
 python eval/11_verify_qwen_placebo_confidence_epochs_wer.py
 
-# 5. Evaluate GPT-4o Diagnostic Ceiling -> 8.92% WER
+# 5. Evaluate 360h Extended Model (Baseline vs Hacked Inference) -> 10.03% WER
+python eval/17_verify_qwen_360h_perturbed.py
+
+# 6. Evaluate GPT-4o Diagnostic Ceiling -> 8.92% WER
 # (Requires OPENAI_API_KEY environment variable)
 python eval/07_verify_gpt4o_oracle_wer.py
 
-# 6. Benchmark Edge Hardware Latency (RTF & Token Speed)
+# 7. Benchmark Edge Hardware Latency (RTF & Token Speed)
 # Logs your CPU/RAM specs and tests inference latency for a 5-second audio chunk.
 python eval/16_benchmark_latency.py
 ```
