@@ -1,0 +1,1 @@
+{"repos": [{"repoId": "unsloth/Qwen2.5-0.5B-Instruct", "repoType": "model", "commitHash": "ae616882a38b36759fc46ac3fd6769498833b913", "filePaths": ["generation_config.json", "config.json", "model.safetensors"]}]}

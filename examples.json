@@ -1,0 +1,22 @@
+[
+  {
+    "input": "[0.98] ɪt [0.61] wʌz [0.79] ðɪs [0.98] ɑːbzɚveɪʃən [0.80] ðæt [0.86] dɹuː [0.99] fɹʌm [0.94] dʌɡləs [0.95] nɑːt [1.00] ɪmiːdɪətli [0.60] bʌt [0.97] leɪɾɚɹ [0.96] ɪnðɪ [0.95] iːvnɪŋ [0.67] ɐ [0.85] ɹᵻplaɪ [1.00] ðæt [0.94] hæd [0.99] ðɪ [0.88] ɪntɹɛstɪŋ [0.94] kɑːnsɪkwəns [0.98] tʊ [0.73] wɪtʃ [1.00] aɪ [0.89] kɑːl [0.91] ɐtɛnʃən",
+    "output": "it was this observation that drew from douglas not immediately but later in the evening a reply that had the interesting consequence to which i call attention"
+  },
+  {
+    "input": "[0.98] ðɛn [0.97] aɪ [0.67] lɔŋ [0.90] tɹaɪd [0.83] baɪ [0.88] nætʃɚɹəl [0.75] ilz [0.89] ɹᵻsiːvd [0.83] ðə [0.89] kʌmfɚt [0.84] fæst [0.66] waɪl [0.83] bʌdɪŋ [1.00] æt [1.00] ðaɪ [0.97] saɪt [0.71] maɪ [0.80] pɪlɡɹɪm [0.89] stæf [0.99] ɡeɪv [0.95] aʊt [0.87] ɡɹiːn [0.76] liːvz [0.72] wɪð [0.90] mɔːɹnɪŋ [0.99] duːz [0.92] ɪmpɜːld",
+    "output": "then i long tried by natural ills received the comfort fast while budding at thy sight my pilgrim's staff gave out green leaves with morning dews impearled"
+  },
+  {
+    "input": "[0.95] kɑːʔn̩ [1.00] ʃiː [0.83] bɔːzd",
+    "output": "cotton she paused"
+  },
+  {
+    "input": "[0.99] sʌm [0.85] ɪmɪdʒᵻz [0.79] laɪk [0.87] sʌm [0.97] sɛnseɪʃənz [1.00] fɪl [0.60] vɛɹi [0.80] fəmɪlɪɹ [0.73] waɪl [0.88] ʌðɚz [0.97] fɪl [0.97] stɹeɪndʒ",
+    "output": "some images like some sensations feel very familiar while others feel strange"
+  },
+  {
+    "input": "[0.83] ðɛn [0.87] tɜːnɪŋ [0.98] təwɔːɹdz [0.79] miː [0.99] hiː [0.72] sɛz [0.80] ðæt [0.87] aɪ [0.82] lʊkt [0.87] laɪk [1.00] ɐ [0.82] fɑːɹənɚ [1.00] ænd [0.96] wɛn [0.92] aɪ [0.87] seɪ [0.79] ðæt [0.88] aɪ [0.82] æm [0.75] ɐn [0.95] ɐtæliən [0.80] hiː [0.87] bɪɡɪnz [1.00] tə [0.94] spiːk [1.00] tə [0.97] miː [0.74] ʌvðə [0.93] koːɹ [0.96] tə [1.00] ðə [0.82] sɪɾi [0.93] ʌvðə [0.98] θiəɾɚz [0.99] ænd [0.99] æt [0.83] læst [0.83] hiː [0.76] ɔfɚz [1.00] tʊ [0.99] ɐkʌmpəni [1.00] miː [0.83] ɛvɹɪwɛɹ",
+    "output": "then turning towards me he says that i look like a foreigner and when i say that i am an italian he begins to speak to me of the court of the city of the theatres and at last he offers to accompany me everywhere"
+  }
+]
